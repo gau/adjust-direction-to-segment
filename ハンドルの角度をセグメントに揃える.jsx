@@ -3,7 +3,9 @@
 	// Settings
 	var settings = {
 		'synchronize' : true,	// Synchronize a direction with an opposite one.
-		'unifyLength' : false	// To make the left and right directions the same length.
+		'sameLength' : false,	// Make the left and right directions the same length.
+		'smooth' : false,	// Set an anchor to smooth point.
+		'showAlert' : true	// Show alert message.
 	};
 
 	// Title and version
@@ -19,11 +21,11 @@
 
 	// Confirm and execute
 	if(!doc || sel.length < 1) {
-		alert('対象オブジェクトが選択されていません');
+		if(settings.showAlert) alert('対象オブジェクトが選択されていません');
 	} else if(sel.length > 1) {
-		alert('2つ以上のオブジェクトが選択されています');
+		if(settings.showAlert) alert('2つ以上のオブジェクトが選択されています');
 	} else if(targetPoints.length != 2) {
-		alert('連続する2つのアンカーポイントか、単一のセグメントのみを選択してください');
+		if(settings.showAlert) alert('連続する2つのアンカーポイントか、単一のセグメントのみを選択してください');
 	} else {
 		mainProcess();
 	}
@@ -45,13 +47,19 @@
 			point2.pathPoint.leftDirection = getPosition(radian, -point2.leftDirection.distance, point2.anchor);
 
 			if(settings.synchronize) {
-				if(settings.unifyLength) {
+				if(settings.sameLength) {
 					point1.pathPoint.leftDirection = getPosition(radian, -point1.rightDirection.distance, point1.anchor);
 					point2.pathPoint.rightDirection = getPosition(radian, point2.leftDirection.distance, point2.anchor);
 				} else {
 					point1.pathPoint.leftDirection = getPosition(radian, -point1.leftDirection.distance, point1.anchor);
 					point2.pathPoint.rightDirection = getPosition(radian, point2.rightDirection.distance, point2.anchor);
 				}
+
+				if(settings.smooth) {
+					point1.pathPoint.pointType = PointType.SMOOTH;
+					point2.pathPoint.pointType = PointType.SMOOTH;
+				}
+
 			}
 	}
 
@@ -108,7 +116,7 @@
 		}
 	}
 
-	// Get the position from angle and distance
+	// Get the position from the angle and the distance
 	function getPosition(radian, distance, offsetPoint) {
 		return [
 			Math.cos(radian) * distance + offsetPoint.x,
